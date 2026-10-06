@@ -13,3 +13,14 @@ Each step has a collapsible video that plays just that step: the stretch of a fu
 3. After a minute the site is live at `https://<your-username>.github.io/<repository-name>/`.
 
 Opened as a saved file, the site still works, and its videos open on YouTube instead.
+
+## Changing a video or its times
+
+Open the site with `?edit` at the end of the address, for example `https://<your-username>.github.io/<repository-name>/?edit`. Editing stays on in that browser until you press **Stop editing**. Visitors never see any of it.
+
+- Open any step's video. Under it, paste a different YouTube link, or change **Starts at** and **Ends at**. Type a time like `4:32`, or press **Now** while the video plays to use the moment it is at. A link with `?t=` in it sets the start for you.
+- **Save** makes it the step's first video. **Remove this video from the step** drops a video you don't want. **Undo my changes** puts the step back as it was.
+- Steps with no video show **Add a video**.
+
+Changes show straight away, but only in your browser. To publish them for everyone, press **Download videos.json**. Then, on GitHub, choose **Add file → Upload files**, drop the file in, and press **Commit changes**. It replaces `videos.json` in the repository, and the site picks it up within a few minutes.
+
