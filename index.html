@@ -3084,11 +3084,12 @@ const Music = (() => {
   const saveLocal = () => { try { localStorage.setItem(EDITS_KEY, JSON.stringify(LOCAL)); } catch (e) { /* storage unavailable */ } };
   const ytId = v => typeof v === 'string' && /^[\w-]{11}$/.test(v);
   const ovOf = id => Object.prototype.hasOwnProperty.call(LOCAL, id) ? LOCAL[id] : EDITS[id];
-  /* a step's own videos with the owner's changes applied: their video first, removed ones gone */
+  /* a step's own videos with the owner's changes applied: their video first, removed ones gone,
+     none at all when the owner took the step's video away */
   function withEdits(id, list) {
     const o = ovOf(id); if (!o || typeof o !== 'object') return list;
     const hide = Array.isArray(o.hide) ? o.hide : [];
-    let out = list.filter(c => !hide.includes(c.v));
+    let out = o.none ? [] : list.filter(c => !hide.includes(c.v));
     if (ytId(o.v)) {
       const meta = VID[o.v] || ['', ''], s = Math.max(0, +o.s || 0), e = +o.e > s ? +o.e : 0;
       out = out.filter(c => c.v !== o.v);
@@ -3124,7 +3125,7 @@ const Music = (() => {
         <label>Ends at<span><input name="e" type="text" autocomplete="off" placeholder="the end" value="${c.e ? clock(c.e) : ''}"><button type="button" class="mini" data-sv-now="e" disabled title="Use the moment the video is at now">Now</button></span></label>
       </div>
       <label>Title under the video <i>(optional)</i><input name="t" type="text" autocomplete="off" value="${esc((o && o.t) || '')}" placeholder="${esc(c.title || '')}"></label>
-      <div class="sv-edit-act"><button type="submit" class="mini solid">Save</button>${c.v ? '<button type="button" class="mini" data-sv-hide>Remove this video from the step</button>' : ''}${changed ? '<button type="button" class="linkish" data-sv-reset>Undo my changes</button>' : ''}<span class="sv-edit-msg" role="status"></span></div>
+      <div class="sv-edit-act"><button type="submit" class="mini solid">Save</button>${c.v ? '<button type="button" class="mini" data-sv-hide>Remove the video from this step</button>' : ''}${changed ? '<button type="button" class="linkish" data-sv-reset>Undo my changes</button>' : ''}<span class="sv-edit-msg" role="status"></span></div>
     </form>`;
   }
   function editBarHTML() {
@@ -3148,14 +3149,13 @@ const Music = (() => {
     if (isNaN(s) || isNaN(e)) return msg('Write times like 4:32 or 1:02:15.');
     if (e && e <= s) return msg('The end has to come after the start.');
     const prev = ovOf(id) || {}, t = f.t.value.trim();
-    LOCAL[id] = Object.assign({ v: p.v }, s ? { s } : {}, e ? { e } : {}, t ? { t } : {}, prev.hide && prev.hide.length ? { hide: prev.hide.filter(x => x !== p.v) } : {});
+    LOCAL[id] = Object.assign({ v: p.v }, s ? { s } : {}, e ? { e } : {}, t ? { t } : {}, prev.none ? { none: true } : {}, prev.hide && prev.hide.length ? { hide: prev.hide.filter(x => x !== p.v) } : {});
     saveLocal(); toast('Saved. Download videos.json to publish it.'); svEditRebuild(id);
   }
+  /* the step keeps no video at all, so none of its other videos moves up into the gap */
   function svEditHide(d) {
-    const id = d.dataset.sv, c = curOf(d), prev = Object.assign({}, ovOf(id) || {});
-    prev.hide = [...new Set([...(prev.hide || []), c.v])];
-    if (prev.v === c.v) { delete prev.v; delete prev.s; delete prev.e; delete prev.t; }
-    LOCAL[id] = prev; saveLocal(); toast('Removed from this step.'); svEditRebuild(id);
+    const id = d.dataset.sv;
+    LOCAL[id] = { none: true }; saveLocal(); toast('This step has no video now.'); svEditRebuild(id);
   }
   function svEditReset(d) {
     const id = d.dataset.sv;
@@ -3166,7 +3166,7 @@ const Music = (() => {
     const merged = Object.assign({}, EDITS);
     Object.entries(LOCAL).forEach(([k, v]) => { if (v === null) delete merged[k]; else merged[k] = v; });
     const steps = Object.fromEntries(Object.keys(merged).sort().map(k => [k, merged[k]]));
-    const text = JSON.stringify({ about: 'Kronorium video changes: each key is a step (map-section-number) or a full walkthrough (walk-map-number). v = YouTube id, s and e = start and end in seconds, t = title, hide = video ids removed from the step.', steps }, null, 1);
+    const text = JSON.stringify({ about: 'Kronorium video changes: each key is a step (map-section-number) or a full walkthrough (walk-map-number). v = YouTube id, s and e = start and end in seconds, t = title, hide = video ids removed from the step, none = the step shows no video.', steps }, null, 1);
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'application/json' })); a.download = 'videos.json';
     document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
   }
