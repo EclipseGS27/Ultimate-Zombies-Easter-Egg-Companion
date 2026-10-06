@@ -2318,29 +2318,100 @@ const Art = (() => {
       snowfall(c, snow, t, w, h, 'rgba(235,242,250,.75)', -28, 16);
     };
   });
-  /* A temple in a Himalayan valley: a stepped shrine, a waterfall, jungle, prayer flags, the sun half lost to an eclipse. */
+  /* Shangri-La: a lost temple in a jungle valley under the Himalayas. Snow peaks behind, the tiered
+     temple with its gold stupa and a green-lit doorway, the cliff waterfall into a misty pool, a rope
+     prayer flags strung from the spire, the gong, the eclipse with its corona, and banana leaves and vines
+     framing it all, with mist and fireflies drifting through. */
   Art.add('sl', (w, h, dpr) => {
-    const R = rng(1912), s = h / 340, gy = h * .82, tx = w * .68, sx = w * .86, sy = h * .2;
+    const R = rng(1912), s = h / 340, gy = h * .86, tx = w * .7, sx = w * .84, sy = h * .25, wf = w * .3;
     const [bg, b] = layer(w, h, dpr);
-    b.fillStyle = lin(b, 0, 0, 0, h, [[0, '#14202e'], [.5, '#5a5a52'], [.72, '#a8703c'], [1, '#100c08']]); b.fillRect(0, 0, w, h);
-    b.fillStyle = '#2a3442'; b.beginPath(); b.moveTo(0, h); for (let x = 0; x <= w; x += 30) b.lineTo(x, h * .38 + Math.abs(Math.sin(x * .006 + 1)) * -90 * s + Math.sin(x * .02) * 14 * s); b.lineTo(w, h); b.fill();
-    b.fillStyle = '#dfe6ee'; b.beginPath(); for (let x = 0; x <= w; x += 30) { const y = h * .38 - Math.abs(Math.sin(x * .006 + 1)) * 90 * s; if (y < h * .3) { b.moveTo(x - 14, y + 16 * s); b.lineTo(x, y); b.lineTo(x + 14, y + 16 * s); } } b.fill();
-    hills(b, R, w, h, gy - 40 * s, 50 * s, .008, '#1c2a18', .2);
-    const wf = w * .24; b.fillStyle = '#18241a'; b.fillRect(wf - 50 * s, gy - 170 * s, 100 * s, 170 * s);
-    for (let i = 0; i < 6; i++) { const ww = (170 - i * 24) * s, hh = 20 * s; b.fillStyle = i % 2 ? '#2a2016' : '#33271a'; b.fillRect(tx - ww / 2, gy - (i + 1) * hh, ww, hh); }
-    poly(b, [[tx - 18 * s, gy - 120 * s], [tx + 18 * s, gy - 120 * s], [tx, gy - 156 * s]], '#3a2a18');
-    b.fillStyle = '#0c140a'; b.fillRect(0, gy, w, h - gy);
-    for (let i = 0; i < Math.round(w / 14); i++) { const x = R() * w, hh = lerp(20, 60, R()) * s; poly(b, [[x - 12 * s, gy + 2], [x, gy - hh], [x + 12 * s, gy + 2]], '#0a1408'); }
-    b.strokeStyle = 'rgba(30,20,10,.8)'; b.lineWidth = 1; b.beginPath(); b.moveTo(tx, gy - 156 * s); b.quadraticCurveTo(tx + 120 * s, gy - 100 * s, tx + 240 * s, gy - 150 * s); b.stroke();
-    const flags = Array.from({ length: 10 }, (_, i) => i / 10), cols = ['#e8443a', '#f2c14e', '#5fcf8a', '#4aa8ff', '#f4f0e8'];
-    const mist = fogLayer(w, h, dpr, R, '220,230,220', gy - 60 * s, gy, 14, .14);
+    /* dawn through haze: deep teal above, gold low on the peaks */
+    b.fillStyle = lin(b, 0, 0, 0, h, [[0, '#0b1a22'], [.38, '#24433f'], [.6, '#9a8a55'], [.74, '#3d5a3a'], [1, '#08130b']]); b.fillRect(0, 0, w, h);
+    glow(b, sx, sy, 260 * s, '255,214,150', .22);
+    clouds(b, R, w, 7, h * .08, h * .3, 'rgba(210,220,200,.06)', s);
+    glow(b, sx, sy, 80 * s, '255,226,170', .5); glow(b, sx, sy, 36 * s, '190,255,210', .3);
+    b.fillStyle = '#fff6dc'; b.beginPath(); b.arc(sx, sy, 21 * s, 0, TAU); b.fill(); b.fillStyle = '#0c1416'; b.beginPath(); b.arc(sx - 1.5 * s, sy, 20 * s, 0, TAU); b.fill();
+    /* the Himalayas: three ranges, snow caps clipped above a ragged snowline, a lit and a shaded face */
+    const range = (base, amp, k, col, snow, shade) => {
+      const p1 = R() * 9, p2 = R() * 9, pts = [];
+      for (let x = -10; x <= w + 10; x += 5) pts.push([x, base - amp * (Math.pow(Math.abs(Math.sin(x * k + p1)), 1.6) * .75 + .2 * Math.abs(Math.sin(x * k * 2.3 + p2)) + .05 * Math.sin(x * k * 9))]);
+      const path = () => { b.beginPath(); b.moveTo(-10, h); pts.forEach(p => b.lineTo(p[0], p[1])); b.lineTo(w + 10, h); b.closePath(); };
+      b.fillStyle = col; path(); b.fill();
+      b.save(); path(); b.clip();
+      b.fillStyle = snow; b.beginPath(); b.moveTo(-10, 0); for (let x = -10; x <= w + 10; x += 8) b.lineTo(x, base - amp * .52 + Math.sin(x * .09) * 5 * s + (R() - .5) * 6 * s); b.lineTo(w + 10, 0); b.fill();
+      b.fillStyle = lin(b, 0, base - amp, 0, base, [[0, 'rgba(0,0,0,0)'], [1, shade]]); b.fillRect(-10, base - amp, w + 20, amp + 10);
+      b.restore();
+    };
+    range(h * .6, 96 * s, .0042, '#4c5f6c', 'rgba(236,240,246,.92)', 'rgba(20,30,48,.28)');
+    range(h * .65, 70 * s, .0061, '#33464d', 'rgba(214,224,232,.7)', 'rgba(10,20,30,.3)');
+    b.fillStyle = 'rgba(190,200,180,.16)'; b.fillRect(0, h * .6, w, h * .08);
+    hills(b, R, w, h, h * .7, 70 * s, .006, '#1f3a24', .15);
+    hills(b, R, w, h, h * .76, 50 * s, .011, '#183020', .25);
+    /* the cliff and its waterfall on the left */
+    b.fillStyle = '#1c2a20'; poly(b, [[wf - 90 * s, gy], [wf - 70 * s, h * .4], [wf - 30 * s, h * .36], [wf + 40 * s, h * .38], [wf + 70 * s, h * .44], [wf + 96 * s, gy]]);
+    b.fillStyle = '#152018'; poly(b, [[wf + 40 * s, h * .38], [wf + 70 * s, h * .44], [wf + 96 * s, gy], [wf + 30 * s, gy]]);
+    b.fillStyle = 'rgba(40,70,40,.9)'; for (let i = 0; i < 26; i++) { const x = lerp(wf - 80 * s, wf + 90 * s, R()), y = lerp(h * .38, gy - 20 * s, R()); b.beginPath(); b.ellipse(x, y, lerp(6, 16, R()) * s, lerp(4, 9, R()) * s, 0, 0, TAU); b.fill(); }
+    b.fillStyle = lin(b, wf - 22 * s, 0, wf + 22 * s, 0, [[0, 'rgba(190,225,235,0)'], [.25, 'rgba(200,230,238,.7)'], [.5, 'rgba(235,248,252,.9)'], [.75, 'rgba(200,230,238,.7)'], [1, 'rgba(190,225,235,0)']]); poly(b, [[wf - 12 * s, h * .37], [wf + 12 * s, h * .37], [wf + 22 * s, gy], [wf - 22 * s, gy]]);
+    b.fillStyle = 'rgba(120,170,180,.55)'; b.beginPath(); b.ellipse(wf, gy + 6 * s, 70 * s, 12 * s, 0, 0, TAU); b.fill();
+    /* the temple: a wide stair, four stone tiers with upturned eaves, a gold stupa and spire */
+    const stone = ['#6d6650', '#5f5946', '#544f3e', '#4a4536'], tierW = [230, 176, 128, 86], tierH = [26, 24, 22, 20];
+    let ty = gy - 8 * s;
+    b.fillStyle = '#3f3a2e'; b.fillRect(tx - 150 * s, ty, 300 * s, 10 * s);
+    for (let i = 0; i < 9; i++) { b.fillStyle = i % 2 ? '#5a5442' : '#665f4b'; b.fillRect(tx - (34 - i) * s, gy - i * 4 * s, (68 - i * 2) * s, 4 * s); }
+    tierW.forEach((tw, i) => {
+      const ww = tw * s, hh = tierH[i] * s, top = ty - hh;
+      b.fillStyle = stone[i]; b.fillRect(tx - ww / 2, top, ww, hh);
+      b.fillStyle = 'rgba(0,0,0,.22)'; b.fillRect(tx + ww * .18, top, ww * .32, hh);
+      b.fillStyle = 'rgba(20,16,10,.55)'; for (let k = -2; k <= 2; k++) if (k) b.fillRect(tx + k * ww * .18 - 3 * s, top + hh * .3, 6 * s, hh * .55);
+      const ew = ww / 2 + 16 * s, ey = top - 2 * s;
+      b.fillStyle = '#5a1e14'; b.beginPath(); b.moveTo(tx - ew, ey - 7 * s); b.quadraticCurveTo(tx - ew * .6, ey + 3 * s, tx, ey - 3 * s); b.quadraticCurveTo(tx + ew * .6, ey + 3 * s, tx + ew, ey - 7 * s); b.lineTo(tx + ew * .86, ey + 3 * s); b.lineTo(tx - ew * .86, ey + 3 * s); b.fill();
+      b.fillStyle = '#c8a24a'; b.fillRect(tx - ew * .86, ey + 2 * s, ew * 1.72, 1.6 * s);
+      ty = top - 3 * s;
+    });
+    b.fillStyle = rad(b, tx - 6 * s, ty - 12 * s, 2 * s, 22 * s, [[0, '#ffe7a0'], [.6, '#d6a640'], [1, '#8a6420']]); b.beginPath(); b.arc(tx, ty, 20 * s, Math.PI, TAU); b.fill();
+    b.fillStyle = '#c8a24a'; b.fillRect(tx - 9 * s, ty - 26 * s, 18 * s, 6 * s); for (let i = 0; i < 6; i++) b.fillRect(tx - (6 - i) * s, ty - (32 + i * 6) * s, (12 - i * 2) * s, 5 * s);
+    b.fillRect(tx - 1 * s, ty - 74 * s, 2 * s, 10 * s);
+    const doorY = gy - 8 * s - 26 * s;
+    b.fillStyle = '#0d120c'; b.beginPath(); b.moveTo(tx - 13 * s, gy - 8 * s); b.lineTo(tx - 13 * s, doorY + 8 * s); b.arc(tx, doorY + 8 * s, 13 * s, Math.PI, TAU); b.lineTo(tx + 13 * s, gy - 8 * s); b.fill();
+    /* two small shrines and stone lanterns */
+    [[tx - 190 * s, 46], [tx + 186 * s, 40]].forEach(([x, sz]) => { b.fillStyle = '#4f4a3a'; b.fillRect(x - sz * .4 * s, gy - sz * s, sz * .8 * s, sz * s); b.fillStyle = '#5a1e14'; poly(b, [[x - sz * .62 * s, gy - sz * s], [x, gy - sz * 1.45 * s], [x + sz * .62 * s, gy - sz * s]]); b.fillStyle = '#c8a24a'; b.fillRect(x - 1.5 * s, gy - sz * 1.7 * s, 3 * s, sz * .3 * s); });
+    /* the gong on its frame */
+    const gx = tx - 140 * s, gyy = gy - 34 * s, gr = 11 * s;
+    b.fillStyle = '#3a2416'; b.fillRect(gx - 16 * s, gyy - 18 * s, 3 * s, 52 * s); b.fillRect(gx + 13 * s, gyy - 18 * s, 3 * s, 52 * s); b.fillRect(gx - 19 * s, gyy - 20 * s, 38 * s, 4 * s);
+    /* strings of prayer flags from the spire down to the two shrines */
+    const spire = [tx, ty - 70 * s], ends = [[tx - 190 * s, gy - 66 * s], [tx + 186 * s, gy - 58 * s], [tx - 300 * s, gy - 30 * s]];
+    const strings = ends.map(([x1, y1]) => k => { const q = 1 - k; return [q * spire[0] + k * x1, q * spire[1] + k * y1 + Math.sin(k * Math.PI) * 26 * s]; });
+    /* the jungle floor */
+    b.fillStyle = '#0a160c'; b.fillRect(0, gy, w, h - gy);
+    for (let i = 0; i < Math.round(w / 9); i++) { const x = R() * w, r = lerp(10, 30, R()) * s; b.fillStyle = R() < .5 ? '#0e2212' : '#12291a'; b.beginPath(); b.ellipse(x, gy + lerp(-4, 8, R()) * s, r, r * .55, 0, 0, TAU); b.fill(); }
+    /* foreground leaves and vines, drawn once and swayed as a whole */
+    const [fg, f] = layer(w, h, dpr);
+    const leaf = (x, y, len, ang, wid, col) => { f.save(); f.translate(x, y); f.rotate(ang); f.fillStyle = col; f.beginPath(); f.moveTo(0, 0); f.quadraticCurveTo(len * .5, -wid, len, 0); f.quadraticCurveTo(len * .5, wid * .7, 0, 0); f.fill(); f.strokeStyle = 'rgba(0,0,0,.35)'; f.lineWidth = 1; f.beginPath(); f.moveTo(0, 0); f.quadraticCurveTo(len * .5, -wid * .12, len, 0); f.stroke(); f.restore(); };
+    const clump = (x, y, n, len, a0, a1) => { for (let i = 0; i < n; i++) leaf(x, y, len * lerp(.7, 1.1, R()), lerp(a0, a1, i / Math.max(1, n - 1)) + (R() - .5) * .2, len * lerp(.16, .22, R()), R() < .5 ? '#06120a' : '#0a1a0e'); };
+    clump(-10 * s, h * 1.02, 6, 150 * s, -1.4, -.2);
+    clump(w + 10 * s, h * 1.02, 6, 140 * s, -2.9, -1.7);
+    clump(w * .5, h * 1.06, 4, 90 * s, -2.4, -.8);
+    f.strokeStyle = '#08140a'; f.lineWidth = 2 * s; [[w * .04, 120], [w * .09, 80], [w * .95, 140]].forEach(([x, len]) => { f.beginPath(); f.moveTo(x, -4); f.quadraticCurveTo(x + 12 * s, len * .5 * s, x - 4 * s, len * s); f.stroke(); for (let k = .25; k < 1; k += .2) leaf(x + 4 * s, len * k * s, 18 * s, .6 + k, 5 * s, '#0a1a0e'); });
+    const mist = fogLayer(w, h, dpr, R, '220,232,220', h * .55, gy + 10 * s, 16, .12);
+    const pool = fogLayer(w, h, dpr, R, '230,240,245', gy - 30 * s, gy + 10 * s, 8, .1);
+    const flies = dots(Math.round(w / 40), R, r => ({ x: r() * w, y: lerp(h * .55, h * .95, r()), p: r() * TAU, sp: lerp(.3, .9, r()) }));
+    const flags = Array.from({ length: 11 }, (_, i) => (i + .6) / 11.4), cols = ['#3d7be0', '#f4f0e8', '#e8443a', '#5fcf8a', '#f2c14e'];
     return (c, t) => {
       c.drawImage(bg, 0, 0, w, h);
-      glow(c, sx, sy, 90 * s, '255,220,160', .5); c.fillStyle = '#fff4dc'; c.beginPath(); c.arc(sx, sy, 22 * s, 0, TAU); c.fill(); c.fillStyle = '#20202a'; c.beginPath(); c.arc(sx - 9 * s + Math.sin(t * .05) * 3, sy, 21 * s, 0, TAU); c.fill();
-      c.fillStyle = 'rgba(200,225,240,.5)'; for (let i = 0; i < 6; i++) { const x = wf - 30 * s + i * 12 * s, y = mod(t * 120 + i * 37, 170 * s); c.fillRect(x, gy - 170 * s + y, 6 * s, 26 * s); }
-      glow(c, wf, gy, 70 * s, '220,240,255', .3);
-      flags.forEach((k, i) => { const q = 1 - k, x = q * q * tx + 2 * q * k * (tx + 120 * s) + k * k * (tx + 240 * s), y = q * q * (gy - 156 * s) + 2 * q * k * (gy - 100 * s) + k * k * (gy - 150 * s); c.fillStyle = cols[i % 5]; c.save(); c.translate(x, y); c.rotate(Math.sin(t * 2 + i) * .2); c.fillRect(-4 * s, 0, 8 * s, 10 * s); c.restore(); });
-      drift(c, mist, w, h, t * 10);
+      c.globalCompositeOperation = 'lighter'; glow(c, sx, sy, (60 + 8 * Math.sin(t * .7)) * s, '255,226,170', .14); c.globalCompositeOperation = 'source-over';
+      /* falling water and the gong's glint */
+      c.fillStyle = 'rgba(240,250,255,.55)'; for (let i = 0; i < 7; i++) { const y = mod(t * 150 + i * 41, gy - h * .37), k = y / (gy - h * .37), x = wf + (i - 3) * lerp(3.4, 6, k) * s; c.fillRect(x, h * .37 + y, 2 * s, 22 * s); }
+      c.fillStyle = rad(c, gx - 3 * s, gyy - 3 * s, 1 * s, gr, [[0, '#ffe7a0'], [.7, '#b8862e'], [1, '#6a4a18']]); c.beginPath(); c.arc(gx, gyy, gr, 0, TAU); c.fill();
+      c.globalCompositeOperation = 'lighter'; glow(c, gx - 3 * s, gyy - 3 * s, 9 * s, '255,230,160', .25 + .2 * Math.max(0, Math.sin(t * .9))); c.globalCompositeOperation = 'source-over';
+      /* the temple doorway breathes the green of the Focusing Stone */
+      c.globalCompositeOperation = 'lighter'; glow(c, tx, doorY + 14 * s, (34 + 6 * Math.sin(t * 1.3)) * s, '95,207,138', .45); c.globalCompositeOperation = 'source-over';
+      strings.forEach((str, j) => {
+        c.strokeStyle = 'rgba(30,22,12,.75)'; c.lineWidth = 1; c.beginPath(); for (let k = 0; k <= 1.001; k += .05) { const [x, y] = str(k); k ? c.lineTo(x, y) : c.moveTo(x, y); } c.stroke();
+        flags.forEach((k, i) => { const [x, y] = str(k); c.fillStyle = cols[(i + j) % 5]; c.save(); c.translate(x, y); c.rotate(Math.sin(t * 2.2 + i * .8 + j) * .22); c.fillRect(-3.5 * s, 0, 7 * s, 9 * s); c.restore(); });
+      });
+      drift(c, mist, w, h, t * 8); drift(c, pool, w, h, -t * 5);
+      c.globalCompositeOperation = 'lighter'; flies.forEach(p => { const a = .5 + .5 * Math.sin(t * 2 * p.sp + p.p); glow(c, p.x + Math.sin(t * p.sp + p.p) * 18 * s, p.y + Math.cos(t * p.sp * .8 + p.p) * 10 * s, 5 * s, '210,255,150', .5 * a); }); c.globalCompositeOperation = 'source-over';
+      c.save(); c.translate(w / 2, h); c.rotate(Math.sin(t * .6) * .006); c.drawImage(fg, -w / 2, -h, w, h); c.restore();
     };
   });
   /* The lunar surface: Griffin Station domes, the MPD pyramid, a crashed lander, the Earth hanging blue over the horizon. */
