@@ -1,0 +1,4 @@
+{
+ "about": "Kronorium video changes: each key is a step (map-section-number) or a full walkthrough (walk-map-number). v = YouTube id, s and e = start and end in seconds, t = title, hide = video ids removed from the step. Make changes with the site's editor (open the site with ?edit) and upload the file it downloads here.",
+ "steps": {}
+}
