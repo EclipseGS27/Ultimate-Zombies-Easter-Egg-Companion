@@ -21,6 +21,7 @@ Open the site with `?edit` at the end of the address, for example `https://<your
 - Open any step's video. Under it, paste a different YouTube link, or change **Starts at** and **Ends at**. Type a time like `4:32`, or press **Now** while the video plays to use the moment it is at. A link with `?t=` in it sets the start for you.
 - **Save** makes it the step's first video. **Remove this video from the step** drops a video you don't want. **Undo my changes** puts the step back as it was.
 - Steps with no video show **Add a video**.
+- The banner also shows **Use my image** and **Use my track**, which swap a map's art or music in your browser only. Visitors don't see these buttons, and everyone else always gets the built-in art and music.
 
 Changes show straight away, but only in your browser. To publish them for everyone, press **Download videos.json**. Then, on GitHub, choose **Add file → Upload files**, drop the file in, and press **Commit changes**. It replaces `videos.json` in the repository, and the site picks it up within a few minutes.
 

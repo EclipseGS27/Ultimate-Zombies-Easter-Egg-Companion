@@ -181,6 +181,7 @@ h1 { font-family: var(--f-display); font-weight: var(--display-weight); text-tra
 .players { display: flex; align-items: baseline; gap: 10px; margin: 14px 0 0; max-width: 40em; font-size: .97rem; line-height: 1.45; color: var(--ink-soft); text-shadow: 0 1px 12px var(--bg); }
 .players b { flex: none; font-family: var(--f-label); font-size: .8rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--on-accent); background: var(--accent-2); padding: 1px 8px; border-radius: 4px; text-shadow: none; }
 .mine { order: 2; display: flex; gap: 8px; flex-wrap: wrap; margin-top: 18px; }
+.mine[hidden] { display: none; }
 
 /* ── frame ── */
 .grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px; margin-top: 36px; align-items: start; }
@@ -927,7 +928,7 @@ div.finish.done .linkish { margin-left: auto; font-size: .82rem; font-weight: 60
 
   <section class="hero" id="hero" aria-labelledby="mapName">
     <canvas id="art" aria-hidden="true"></canvas>
-    <div class="mine">
+    <div class="mine" id="mine" hidden>
       <button class="chip" id="imgBtn" type="button">Use my image</button>
       <button class="chip" id="audBtn" type="button">Use my track</button>
       <input class="vh" id="imgFile" type="file" accept="image/*" tabindex="-1" aria-label="Choose a banner image for this map">
@@ -4101,7 +4102,7 @@ const Music = (() => {
   }
   const audioId = () => state.view === 'lore' ? 'lore' : state.tab;
   async function startMusic() {
-    const id = audioId(), own = id === 'lore' ? null : await Store.get('aud:' + id);
+    const id = audioId(), own = id === 'lore' ? null : await ownMedia('aud:' + id);
     if (id !== audioId()) return;
     let ok = false;
     if (own) { ok = await playCustom(own); if (!ok) toast('That track would not play here. Playing the built-in theme.'); }
@@ -4119,13 +4120,15 @@ const Music = (() => {
   }
 
   /* ── own image and track ── */
+  /* your own banner and track are an owner tool: only offered, and only used, while ?edit is on */
   const ownImg = {}, ownAud = {};
+  const ownMedia = key => editing ? Store.get(key) : Promise.resolve(null);
   async function bitmap(blob) {
     try { if (window.createImageBitmap) return await createImageBitmap(blob); } catch (e) { /* fall through */ }
     return new Promise(res => { const fr = new FileReader(); fr.onload = () => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = fr.result; }; fr.onerror = () => res(null); fr.readAsDataURL(blob); });
   }
   async function applyImage() {
-    const id = state.tab, blob = await Store.get('img:' + id);
+    const id = state.tab, blob = await ownMedia('img:' + id);
     if (id !== state.tab || state.view === 'lore') return;
     if (!blob) { ownImg[id] = false; Art.setImage(null); paintMine(); return; }
     const bm = await bitmap(blob); if (id !== state.tab) return;
@@ -4133,11 +4136,12 @@ const Music = (() => {
   }
   function paintMine() {
     const id = state.tab;
+    $('mine').hidden = !editing;
     $('imgBtn').textContent = ownImg[id] ? 'Remove my image' : 'Use my image'; $('imgBtn').classList.toggle('on', !!ownImg[id]);
     $('audBtn').textContent = ownAud[id] ? 'Remove my track' : 'Use my track'; $('audBtn').classList.toggle('on', !!ownAud[id]);
   }
   async function primeOwn() {
-    for (const m of MAPS) { const a = await Store.get('aud:' + m.id); if (a) ownAud[m.id] = a.name || 'Your track'; }
+    for (const m of MAPS) { const a = await ownMedia('aud:' + m.id); if (a) ownAud[m.id] = a.name || 'Your track'; }
     paintMine(); paintPlayer();
   }
 
@@ -4202,7 +4206,7 @@ const Music = (() => {
     if (txf && e.target.closest('[data-tx-cancel]')) { txClose(txf); return; }
     if (txf && e.target.closest('[data-tx-reset]')) { txReset(txf); return; }
     if (e.target.closest('[data-ed-clear]')) { LOCAL = {}; saveLocal(); TLOCAL = {}; saveText(); toast('Unpublished changes discarded.'); rerender(); return; }
-    if (e.target.closest('[data-ed-off]')) { editing = false; try { localStorage.setItem(EDIT_KEY, ''); history.replaceState(null, '', location.pathname + location.hash); } catch (x) { /* ignore */ } rerender(); toast('Editing is off. Open the site with ?edit to turn it back on.'); return; }
+    if (e.target.closest('[data-ed-off]')) { editing = false; try { localStorage.setItem(EDIT_KEY, ''); history.replaceState(null, '', location.pathname + location.hash); } catch (x) { /* ignore */ } rerender(); for (const k in ownAud) delete ownAud[k]; applyImage(); paintMine(); paintPlayer(); if (playing) startMusic(); toast('Editing is off. Open the site with ?edit to turn it back on.'); return; }
     const d = e.target.closest('details.sv'); if (!d) return;
     const now = e.target.closest('[data-sv-now]'); if (now) { if (active && active.d === d && active.t !== null) { const f = now.closest('form'); f[now.dataset.svNow].value = clock(active.t); } return; }
     if (e.target.closest('[data-sv-hide]')) { svEditHide(d); return; }
