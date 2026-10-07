@@ -896,6 +896,35 @@ div.finish.done .linkish { margin-left: auto; font-size: .82rem; font-weight: 60
 .sv-add > summary { padding: 8px 14px; }
 .sv-add .sv-l b { color: var(--accent-2); }
 @media print { .sv-editbar { display: none !important; } }
+/* where a step's video sits, set by the owner: above and below everywhere, left and right side by side on wide screens */
+.step.vp-above .step-aux, .step.vp-left .step-aux { order: -1; }
+@media (min-width: 1320px) {
+  .step.vp-left .step-body { grid-template-columns: minmax(0, 1fr) minmax(0, var(--measure)); }
+  .step.vp-left .step-aux { justify-self: end; width: 100%; }
+  .step.vp-left .step-aux .sv:not([open]) { justify-self: end; }
+  .step.vp-left .vp-bar { justify-content: flex-end; }
+  .step.vp-above .step-body, .step.vp-below .step-body { grid-template-columns: minmax(0, 1fr); }
+  .step.vp-above .step-aux, .step.vp-below .step-aux { max-width: calc(var(--measure) + 46px); }
+}
+.vp-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: .8rem; }
+.vp-grip { display: inline-flex; align-items: center; gap: 6px; border: 1px dashed color-mix(in srgb, var(--accent-2) 60%, transparent); border-radius: 999px; padding: 3px 11px 3px 8px; background: color-mix(in srgb, var(--accent-2) 12%, transparent); color: var(--accent-2); font: 600 .8rem var(--f-body); cursor: grab; }
+.vp-grip::before { content: ""; width: 8px; height: 12px; background: radial-gradient(circle, currentColor 1.2px, transparent 1.6px) 0 0 / 4px 4px; }
+.vp-grip:active { cursor: grabbing; }
+.vp-spot { border: 0; border-radius: 999px; padding: 3px 10px; background: var(--surface-2); color: var(--dim); font: 600 .78rem var(--f-body); cursor: pointer; }
+.vp-spot:hover { color: var(--ink); }
+.vp-spot[aria-pressed="true"] { background: var(--accent-2); color: var(--on-accent); }
+.vp-bar .linkish { font-size: .78rem; color: var(--dim); }
+.sv-add[data-add]:not([open]) > summary { padding: 4px 12px; }
+.sv-add[data-add]:not([open]) .sv-l b { font-size: .84rem; }
+.vp-dragging .step[data-id] { outline: 1px dashed color-mix(in srgb, var(--accent-2) 35%, transparent); outline-offset: -2px; }
+.step[data-vp-drop] { outline: 2px dashed var(--accent-2); outline-offset: -2px; background: color-mix(in srgb, var(--accent-2) 7%, transparent); }
+.step[data-vp-drop]::after { content: attr(data-vp-label); position: absolute; z-index: 5; pointer-events: none; padding: 6px 12px; border-radius: 8px; background: var(--accent-2); color: var(--on-accent); font: 600 .85rem var(--f-body); white-space: nowrap; box-shadow: 0 8px 24px -10px #000; }
+.step[data-vp-drop="here"]::after { left: 50%; top: 50%; translate: -50% -50%; }
+.step[data-vp-drop="above"]::after { left: 50%; top: 6px; translate: -50% 0; }
+.step[data-vp-drop="below"]::after { left: 50%; bottom: 6px; translate: -50% 0; }
+.step[data-vp-drop="left"]::after { left: 52px; top: 50%; translate: 0 -50%; }
+.step[data-vp-drop="right"]::after { right: 8px; top: 50%; translate: 0 -50%; }
+@media print { .vp-bar { display: none !important; } }
 
 </style>
 </head>
@@ -3781,7 +3810,8 @@ const Music = (() => {
     base[id] = list; list = vids[id] = withEdits(id, list);
     if (!list.length) return editing ? `<details class="sv sv-add" data-sv="${id}" data-i="0" data-title="${esc(title)}"><summary><span class="sv-l"><b>Add a video</b><small>No video for this step yet</small></span><span class="sv-chev" aria-hidden="true"></span></summary><div class="sv-body"></div></details>` : '';
     const c = list[0];
-    return `<details class="sv sv-${c.kind}" data-sv="${id}" data-i="0" data-title="${esc(title)}"><summary><span class="sv-th" aria-hidden="true"><img alt="" loading="lazy" decoding="async" src="${thumb(c.v, 'mqdefault')}" onerror="this.remove()"></span><span class="sv-l"><b>${SRC_LEAD[c.kind]}</b><small>${esc(svSub(id, list, 0))}</small></span><span class="sv-chev" aria-hidden="true"></span></summary><div class="sv-body"></div></details>`;
+    return `<details class="sv sv-${c.kind}" data-sv="${id}" data-i="0" data-title="${esc(title)}"><summary><span class="sv-th" aria-hidden="true"><img alt="" loading="lazy" decoding="async" src="${thumb(c.v, 'mqdefault')}" onerror="this.remove()"></span><span class="sv-l"><b>${SRC_LEAD[c.kind]}</b><small>${esc(svSub(id, list, 0))}</small></span><span class="sv-chev" aria-hidden="true"></span></summary><div class="sv-body"></div></details>`
+      + (editing && !id.startsWith('walk-') ? `<details class="sv sv-add" data-sv="${id}" data-i="${list.length}" data-add="1" data-title="${esc(title)}"><summary><span class="sv-l"><b>+ Add another video</b></span><span class="sv-chev" aria-hidden="true"></span></summary><div class="sv-body"></div></details>` : '');
   }
   /* the open panel: the stage, a switch between this step's videos, credit, and the start-time controls */
   function svBody(d) {
@@ -3825,19 +3855,50 @@ const Music = (() => {
   let TEDITS = {}, TLOCAL = {};
   try { TLOCAL = JSON.parse(localStorage.getItem(TEXT_KEY) || '{}') || {}; } catch (e) { /* storage unavailable */ }
   const saveText = () => { try { localStorage.setItem(TEXT_KEY, JSON.stringify(TLOCAL)); } catch (e) { /* storage unavailable */ } };
+  /* where each step's video sits beside its words: right (the usual), left, above or below.
+     "*" sets it for every step; a step's own spot wins over that. Published in the same file. */
+  const LAYOUT_KEY = 'kronorium.layout', SPOTS = ['right', 'left', 'above', 'below'];
+  const SPOT_NAME = { right: 'Right', left: 'Left', above: 'Above', below: 'Below' };
+  let LPUB = {}, LLOCAL = {};
+  try { LLOCAL = JSON.parse(localStorage.getItem(LAYOUT_KEY) || '{}') || {}; } catch (e) { /* storage unavailable */ }
+  const saveLayout = () => { try { localStorage.setItem(LAYOUT_KEY, JSON.stringify(LLOCAL)); } catch (e) { /* storage unavailable */ } };
+  const lyOv = k => Object.prototype.hasOwnProperty.call(LLOCAL, k) ? LLOCAL[k] : LPUB[k];
+  const spotAll = () => SPOTS.includes(lyOv('*')) ? lyOv('*') : 'right';
+  const spotOf = id => SPOTS.includes(lyOv(id)) ? lyOv(id) : spotAll();
+  /* a local change that only restates what is published is dropped; null clears a published one */
+  const lySet = (k, v) => { if (v === null && !Object.prototype.hasOwnProperty.call(LPUB, k)) delete LLOCAL[k]; else LLOCAL[k] = v; };
+  function setSpot(id, spot) {
+    lySet(id, spot === spotAll() ? null : spot); saveLayout(); rerender(); toast(`Video moved ${spot === 'above' || spot === 'below' ? spot + ' the step' : 'to the ' + spot}. Download videos.json to publish it.`);
+  }
+  function setSpotAll(spot) {
+    Object.keys(Object.assign({}, LPUB, LLOCAL)).forEach(k => { if (k !== '*') lySet(k, null); });
+    lySet('*', spot === 'right' ? null : spot); saveLayout(); rerender(); toast(`Every step's video is now ${spot === 'above' || spot === 'below' ? spot + ' its step' : 'on the ' + spot}.`);
+  }
+  /* the owner's handle above a step's videos: drag it somewhere, or pick a spot */
+  function spotBarHTML(id) {
+    if (!editing || !vids[id] || !vids[id].length) return '';
+    const cur = spotOf(id);
+    return `<div class="vp-bar" role="group" aria-label="Where this step's video sits"><button type="button" class="vp-grip" draggable="true" data-vp-grip title="Drag to another side of this step, or onto another step to move the video there">Move</button>${SPOTS.map(x => `<button type="button" class="vp-spot" data-vp="${x}" aria-pressed="${x === cur}">${SPOT_NAME[x]}</button>`).join('')}<button type="button" class="linkish" data-vp-all="${cur}">Use for every step</button></div>`;
+  }
   const ytId = v => typeof v === 'string' && /^[\w-]{11}$/.test(v);
   const ovOf = id => Object.prototype.hasOwnProperty.call(LOCAL, id) ? LOCAL[id] : EDITS[id];
   /* a step's own videos with the owner's changes applied: their video first, removed ones gone,
-     none at all when the owner took the step's video away */
+     none at all when the owner took the step's video away, then any videos the owner added */
+  const ownVid = (id, x, from, ai) => {
+    const meta = VID[x.v] || ['', ''], s = Math.max(0, +x.s || 0), e = +x.e > s ? +x.e : 0;
+    return { v: x.v, s, e, kind: id.startsWith('walk-') ? 'walk' : (s || e) ? 'seg' : 'step', title: x.t || meta[0] || 'YouTube video', by: x.t ? '' : meta[1], from, ai };
+  };
   function withEdits(id, list) {
     const o = ovOf(id); if (!o || typeof o !== 'object') return list;
     const hide = Array.isArray(o.hide) ? o.hide : [];
     let out = o.none ? [] : list.filter(c => !hide.includes(c.v));
     if (ytId(o.v)) {
-      const meta = VID[o.v] || ['', ''], s = Math.max(0, +o.s || 0), e = +o.e > s ? +o.e : 0;
       out = out.filter(c => c.v !== o.v);
-      out.unshift({ v: o.v, s, e, kind: id.startsWith('walk-') ? 'walk' : (s || e) ? 'seg' : 'step', title: o.t || meta[0] || 'YouTube video', by: o.t ? '' : meta[1] });
+      out.unshift(ownVid(id, o, 'own'));
     }
+    (Array.isArray(o.add) ? o.add : []).forEach((x, ai) => {
+      if (x && ytId(x.v) && !out.some(c => c.v === x.v && c.s === (+x.s || 0))) out.push(ownVid(id, x, 'add', ai));
+    });
     return out;
   }
   /* what can be reworded: a map's header, a section's heading and notes, a step's words */
@@ -3920,21 +3981,21 @@ const Music = (() => {
   function svEditHTML(d) {
     const id = d.dataset.sv, list = vids[id], c = list[+d.dataset.i || 0] || {}, o = ovOf(id), changed = Object.prototype.hasOwnProperty.call(LOCAL, id) || !!EDITS[id];
     return `<form class="sv-edit" data-sv-form novalidate>
-      <div class="sv-edit-h"><b>${c.v ? 'Change this video' : 'Add a video'}</b><small>Only you see this. ${changed ? 'This step has been changed.' : ''}</small></div>
+      <div class="sv-edit-h"><b>${c.v ? 'Change this video' : d.dataset.add ? 'Add another video' : 'Add a video'}</b><small>Only you see this. ${changed ? 'This step has been changed.' : ''}</small></div>
       <label>YouTube link<input name="u" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="Paste a YouTube link" value="${c.v ? esc(watchUrl(c.v, 0)) : ''}"></label>
       <div class="sv-edit-times">
         <label>Starts at<span><input name="s" type="text" autocomplete="off" placeholder="0:00" value="${c.s ? clock(c.s) : ''}"><button type="button" class="mini" data-sv-now="s" disabled title="Use the moment the video is at now">Now</button></span></label>
         <label>Ends at<span><input name="e" type="text" autocomplete="off" placeholder="the end" value="${c.e ? clock(c.e) : ''}"><button type="button" class="mini" data-sv-now="e" disabled title="Use the moment the video is at now">Now</button></span></label>
       </div>
       <label>Title under the video <i>(optional)</i><input name="t" type="text" autocomplete="off" value="${esc((o && o.t) || '')}" placeholder="${esc(c.title || '')}"></label>
-      <div class="sv-edit-act"><button type="submit" class="mini solid">Save</button>${c.v ? '<button type="button" class="mini" data-sv-hide>Remove the video from this step</button>' : ''}${changed ? '<button type="button" class="linkish" data-sv-reset>Undo my changes</button>' : ''}<span class="sv-edit-msg" role="status"></span></div>
+      <div class="sv-edit-act"><button type="submit" class="mini solid">Save</button>${c.v ? (list.length > 1 ? '<button type="button" class="mini" data-sv-drop>Remove this video</button><button type="button" class="mini" data-sv-hide>Remove all videos</button>' : '<button type="button" class="mini" data-sv-drop>Remove the video from this step</button>') : ''}${changed ? '<button type="button" class="linkish" data-sv-reset>Undo my changes</button>' : ''}<span class="sv-edit-msg" role="status"></span></div>
     </form>`;
   }
   function editBarHTML(m) {
     if (!editing) return '';
-    const n = Object.keys(LOCAL).length + Object.keys(TLOCAL).length, pub = Object.keys(EDITS).length + Object.keys(TEDITS).length;
+    const n = Object.keys(LOCAL).length + Object.keys(TLOCAL).length + Object.keys(LLOCAL).length, pub = Object.keys(EDITS).length + Object.keys(TEDITS).length + Object.keys(LPUB).length;
     return `<div class="sv-editbar" role="region" aria-label="Editor">
-      <div class="sv-editbar-t"><b>Editing</b><span>${n ? `${n} change${n === 1 ? '' : 's'} in this browser not yet published.` : 'Open a step’s video to change it, or press Edit on any step or section to change its words.'}${pub ? ` ${pub} published change${pub === 1 ? '' : 's'} are live.` : ''}</span></div>
+      <div class="sv-editbar-t"><b>Editing</b><span>${n ? `${n} change${n === 1 ? '' : 's'} in this browser not yet published.` : 'Open a step’s video to change it, add another or remove it. Drag Move to put a video on another side of its step, or onto another step. Press Edit on any step or section to change its words.'}${pub ? ` ${pub} published change${pub === 1 ? '' : 's'} are live.` : ''}</span></div>
       ${txBtn('map', m.id, 'Edit the map name and quest')}
       <div class="sv-editbar-a"><button type="button" class="mini solid" data-ed-download${n || pub ? '' : ' disabled'}>Download videos.json</button><button type="button" class="mini" data-ed-help aria-expanded="false">How to publish</button>${n ? '<button type="button" class="mini" data-ed-clear>Discard unpublished changes</button>' : ''}<button type="button" class="linkish" data-ed-off>Stop editing</button></div>
       <ol class="sv-editbar-help" hidden><li>Press <b>Download videos.json</b>.</li><li>On GitHub, open the repository, choose <b>Add file → Upload files</b>, drop in <b>videos.json</b> and press <b>Commit changes</b>. It replaces the old one.</li><li>Within a few minutes every visitor gets your changes. Your browser keeps showing them meanwhile.</li></ol>
@@ -3952,8 +4013,42 @@ const Music = (() => {
     if (isNaN(s) || isNaN(e)) return msg('Write times like 4:32 or 1:02:15.');
     if (e && e <= s) return msg('The end has to come after the start.');
     const prev = ovOf(id) || {}, t = f.t.value.trim();
-    LOCAL[id] = Object.assign({ v: p.v }, s ? { s } : {}, e ? { e } : {}, t ? { t } : {}, prev.none ? { none: true } : {}, prev.hide && prev.hide.length ? { hide: prev.hide.filter(x => x !== p.v) } : {});
+    if (d.dataset.add) {
+      if (vids[id].some(c => c.v === p.v && c.s === s)) return msg('This step already has that video.');
+      svAddTo(id, Object.assign({ v: p.v }, s ? { s } : {}, e ? { e } : {}, t ? { t } : {}));
+      saveLocal(); toast('Video added. Download videos.json to publish it.'); svEditRebuild(id); return;
+    }
+    const cur = curOf(d);
+    if (cur && cur.from === 'add') {
+      const o = ovCopy(id); o.add[cur.ai] = Object.assign({ v: p.v }, s ? { s } : {}, e ? { e } : {}, t ? { t } : {});
+      LOCAL[id] = o; saveLocal(); toast('Saved. Download videos.json to publish it.'); svEditRebuild(id); return;
+    }
+    LOCAL[id] = Object.assign({ v: p.v }, s ? { s } : {}, e ? { e } : {}, t ? { t } : {}, prev.none ? { none: true } : {}, prev.hide && prev.hide.length ? { hide: prev.hide.filter(x => x !== p.v) } : {}, prev.add && prev.add.length ? { add: prev.add } : {});
     saveLocal(); toast('Saved. Download videos.json to publish it.'); svEditRebuild(id);
+  }
+  /* a copy of the step's changes to work on, so a step's own changes stay in one place */
+  const ovCopy = id => { const o = ovOf(id); return o && typeof o === 'object' ? JSON.parse(JSON.stringify(o)) : {}; };
+  function svAddTo(id, x) {
+    const o = ovCopy(id);
+    if (!vids[id] || !vids[id].length) { delete o.v; delete o.s; delete o.e; delete o.t; Object.assign(o, x); }
+    else o.add = (o.add || []).concat([x]);
+    LOCAL[id] = o;
+  }
+  /* take one video off a step and leave its others where they are */
+  function svRemoveOne(id, c) {
+    const o = ovCopy(id);
+    if (c.from === 'add') o.add = (o.add || []).filter((_, n) => n !== c.ai);
+    else {
+      if (c.from === 'own') { delete o.v; delete o.s; delete o.e; delete o.t; }
+      o.hide = (o.hide || []).filter(x => x !== c.v).concat([c.v]);
+    }
+    if (o.add && !o.add.length) delete o.add;
+    if (Object.keys(o).length) LOCAL[id] = o; else if (EDITS[id]) LOCAL[id] = null; else delete LOCAL[id];
+  }
+  function svEditDrop(d) {
+    const id = d.dataset.sv, c = curOf(d); if (!c) return;
+    if (active && active.d === d) stopVideo();
+    svRemoveOne(id, c); saveLocal(); toast(vids[id].length > 1 ? 'Video removed from this step.' : 'This step has no video now.'); svEditRebuild(id);
   }
   /* the step keeps no video at all, so none of its other videos moves up into the gap */
   function svEditHide(d) {
@@ -3972,7 +4067,10 @@ const Music = (() => {
     const tm = Object.assign({}, TEDITS);
     Object.entries(TLOCAL).forEach(([k, v]) => { if (v === null) delete tm[k]; else tm[k] = v; });
     const words = Object.fromEntries(Object.keys(tm).sort().map(k => [k, tm[k]]));
-    const text = JSON.stringify({ about: 'Kronorium changes. steps: each key is a step (map-section-number) or a full walkthrough (walk-map-number); v = YouTube id, s and e = start and end in seconds, t = title, hide = video ids removed from the step, none = the step shows no video. text: each key is a map, a section (map-section) or a step (map-section-number), holding only the wording that was changed.', steps, text: words }, null, 1);
+    const lm = Object.assign({}, LPUB);
+    Object.entries(LLOCAL).forEach(([k, v]) => { if (v === null) delete lm[k]; else lm[k] = v; });
+    const layout = Object.fromEntries(Object.keys(lm).sort().map(k => [k, lm[k]]));
+    const text = JSON.stringify({ about: 'Kronorium changes. steps: each key is a step (map-section-number) or a full walkthrough (walk-map-number); v = YouTube id, s and e = start and end in seconds, t = title, hide = video ids removed from the step, none = the step shows no video, add = more videos shown after the step\'s own. text: each key is a map, a section (map-section) or a step (map-section-number), holding only the wording that was changed. layout: where a step\'s video sits (right, left, above or below its words); * is every step.', steps, text: words, layout }, null, 1);
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'application/json' })); a.download = 'videos.json';
     document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
   }
@@ -3981,8 +4079,8 @@ const Music = (() => {
     if (!canEmbed) return;
     fetch('videos.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : null).then(j => {
       const ok = o => o && typeof o === 'object' && !Array.isArray(o) && Object.keys(o).length ? o : null;
-      const steps = ok(j && j.steps), words = ok(j && j.text); if (!steps && !words) return;
-      if (steps) EDITS = steps; if (words) TEDITS = words;
+      const steps = ok(j && j.steps), words = ok(j && j.text), layout = ok(j && j.layout); if (!steps && !words && !layout) return;
+      if (steps) EDITS = steps; if (words) TEDITS = words; if (layout) LPUB = layout;
       if (!active && state.view !== 'lore') rerender();
     }).catch(() => { /* no published changes */ });
   }
@@ -4077,7 +4175,7 @@ const Music = (() => {
   function svOpen(d) {
     const body = d.querySelector('.sv-body');
     if (!body.firstChild) body.innerHTML = svBody(d);
-    if (!vids[d.dataset.sv].length) return;
+    if (!curOf(d)) return;
     if (canEmbed) playIn(d); else svThumb(d);
   }
   /* a step's clip has played to where the next step starts: offer that next step */
@@ -4181,7 +4279,8 @@ const Music = (() => {
         /* a step plays its own stretch of the map's full guide, where one is timed */
         const sv = STEPVID[id], svs = !sv ? [] : Array.isArray(sv[0]) ? sv : [sv];
         const aux = (st.tool === 'valves' ? valveTool() : '') + svHTML(id, svs.map(([v, s0, e, label]) => { const g = VID[v] || ['', '']; return { v, s: s0, e, kind: s0 || e ? 'seg' : 'step', title: g[0], by: g[1], label }; }), `${s.title} · ${st.t}`);
-        return `<li class="step${on ? ' done' : ''}" data-text="${esc((st.t + ' ' + (st.d || '') + ' ' + (st.li || []).join(' ') + ' ' + (st.warn || '')).toLowerCase())}">${box}<div class="step-body"><div class="step-main">${head}${newStep()}${st.d ? `<div class="step-text">${sentences(st.d).map(x => `<p>${mark(x)}</p>`).join('')}</div>` : ''}${st.li ? `<ul>${st.li.map(x => `<li>${mark(x)}</li>`).join('')}</ul>` : ''}${note('warn', 'Watch out', st.warn)}${txBtn('step', id, 'Edit text')}</div>${aux ? `<div class="step-aux">${aux}</div>` : ''}</div></li>`;
+        const spot = spotOf(id), bar = spotBarHTML(id);
+        return `<li class="step${on ? ' done' : ''}${aux && spot !== 'right' ? ' vp-' + spot : ''}" data-id="${id}" data-text="${esc((st.t + ' ' + (st.d || '') + ' ' + (st.li || []).join(' ') + ' ' + (st.warn || '')).toLowerCase())}">${box}<div class="step-body"><div class="step-main">${head}${newStep()}${st.d ? `<div class="step-text">${sentences(st.d).map(x => `<p>${mark(x)}</p>`).join('')}</div>` : ''}${st.li ? `<ul>${st.li.map(x => `<li>${mark(x)}</li>`).join('')}</ul>` : ''}${note('warn', 'Watch out', st.warn)}${txBtn('step', id, 'Edit text')}</div>${aux ? `<div class="step-aux">${bar}${aux}</div>` : ''}</div></li>`;
       }).join('');
       return `<section class="sec" id="sec-${sid}"><div class="sec-head"><span class="kind k-${s.kind}${s.path ? ' p-' + s.path : ''}">${s.path ? esc(PATHS[s.path] || s.path) + ' side' : KIND[s.kind]}</span><h2>${esc(s.title)}</h2>${check ? `<span class="count" data-count="${sid}"></span>` : ''}</div>${txBtn('sec', sid, 'Edit section')}${s.intro || s.note ? `<div class="sec-top">${s.intro ? `<p class="intro">${esc(s.intro)}</p>` : ''}${s.note ? `<p class="sec-note">${esc(s.note)}</p>` : ''}</div>` : ''}<ol class="steps${num ? ' numbered' : ''}">${steps}</ol></section>`;
     }).join('') + `<div class="finish-end" id="finishEnd"></div><p class="none" id="none" hidden>No step on this map matches that search.</p>`;
@@ -4344,6 +4443,49 @@ const Music = (() => {
     const d = e.target; if (!d.matches || !d.matches('details.sv')) return;
     if (d.open) svOpen(d); else if (active && active.d === d) stopVideo();
   }, true);
+  /* the owner drags a step's video by its Move handle: onto a side of its own step to sit there,
+     or onto another step to move the video to that step */
+  let vpDrag = null, vpMark = null;
+  const vpClear = () => { if (vpMark) { delete vpMark.dataset.vpDrop; delete vpMark.dataset.vpLabel; vpMark = null; } };
+  function vpZone(step, e) {
+    if (step !== vpDrag.step) return 'here';
+    const r = step.querySelector('.step-body').getBoundingClientRect();
+    const fx = (e.clientX - r.left) / r.width, fy = (e.clientY - r.top) / r.height;
+    const near = [['above', fy], ['below', 1 - fy]].concat(matchMedia('(min-width: 1320px)').matches ? [['left', fx], ['right', 1 - fx]] : []);
+    return near.sort((a, b) => a[1] - b[1])[0][0];
+  }
+  $('main').addEventListener('dragstart', e => {
+    const g = e.target.closest && e.target.closest('[data-vp-grip]'); if (!g) return;
+    const step = g.closest('.step'), d = step && step.querySelector('details.sv:not(.sv-add)'); if (!d) { e.preventDefault(); return; }
+    vpDrag = { step, id: step.dataset.id, d };
+    e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', vpDrag.id);
+    try { e.dataTransfer.setDragImage(d, 24, 20); } catch (x) { /* the browser's own image */ }
+    requestAnimationFrame(() => document.documentElement.classList.add('vp-dragging'));
+  });
+  $('main').addEventListener('dragover', e => {
+    if (!vpDrag) return;
+    const step = e.target.closest('.step[data-id]');
+    if (!step) { vpClear(); return; }
+    e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+    const z = vpZone(step, e);
+    if (vpMark !== step) vpClear();
+    vpMark = step; step.dataset.vpDrop = z;
+    step.dataset.vpLabel = z === 'here' ? 'Move the video to this step' : z === 'above' || z === 'below' ? `Put the video ${z} the step` : `Put the video on the ${z}`;
+  });
+  $('main').addEventListener('drop', e => {
+    if (!vpDrag) return; e.preventDefault();
+    const step = vpMark, z = step && step.dataset.vpDrop, from = vpDrag; vpClear(); vpDrag = null;
+    document.documentElement.classList.remove('vp-dragging');
+    if (!step || !z) return;
+    if (z !== 'here') { setSpot(from.id, z); return; }
+    const to = step.dataset.id, c = curOf(from.d); if (!c || !to) return;
+    if (active && active.d === from.d) stopVideo();
+    if ((vids[to] || []).some(x => x.v === c.v && x.s === c.s)) { toast('That step already has this video.'); return; }
+    svAddTo(to, Object.assign({ v: c.v }, c.s ? { s: c.s } : {}, c.e ? { e: c.e } : {}, c.from && c.title && c.title !== (VID[c.v] || [''])[0] ? { t: c.title } : {}));
+    svRemoveOne(from.id, c); saveLocal(); rerender(); toast('Video moved to that step. Download videos.json to publish it.');
+    const nd = document.querySelector(`#main .step[data-id="${to}"]`); if (nd) nd.scrollIntoView({ block: 'nearest' });
+  });
+  $('main').addEventListener('dragend', () => { vpClear(); vpDrag = null; document.documentElement.classList.remove('vp-dragging'); });
   $('main').addEventListener('click', e => {
     if (e.target.closest('[data-ed-download]')) { editDownload(); return; }
     const help = e.target.closest('[data-ed-help]'); if (help) { const h = help.closest('.sv-editbar').querySelector('.sv-editbar-help'); h.hidden = !h.hidden; help.setAttribute('aria-expanded', !h.hidden); return; }
@@ -4351,11 +4493,15 @@ const Music = (() => {
     const txf = e.target.closest('form[data-tx-form]');
     if (txf && e.target.closest('[data-tx-cancel]')) { txClose(txf); return; }
     if (txf && e.target.closest('[data-tx-reset]')) { txReset(txf); return; }
-    if (e.target.closest('[data-ed-clear]')) { LOCAL = {}; saveLocal(); TLOCAL = {}; saveText(); toast('Unpublished changes discarded.'); rerender(); return; }
+    if (e.target.closest('[data-ed-clear]')) { LOCAL = {}; saveLocal(); TLOCAL = {}; saveText(); LLOCAL = {}; saveLayout(); toast('Unpublished changes discarded.'); rerender(); return; }
     if (e.target.closest('[data-ed-off]')) { editing = false; try { localStorage.setItem(EDIT_KEY, ''); history.replaceState(null, '', location.pathname + location.hash); } catch (x) { /* ignore */ } rerender(); for (const k in ownAud) delete ownAud[k]; applyImage(); paintMine(); paintPlayer(); if (playing) startMusic(); toast('Editing is off. Open the site with ?edit to turn it back on.'); return; }
+    const vp = e.target.closest('[data-vp]'); if (vp) { setSpot(vp.closest('.step').dataset.id, vp.dataset.vp); return; }
+    const vpa = e.target.closest('[data-vp-all]'); if (vpa) { setSpotAll(vpa.dataset.vpAll); return; }
+    if (e.target.closest('[data-vp-grip]')) { toast('Drag Move to another side of this step, or onto another step.'); return; }
     const d = e.target.closest('details.sv'); if (!d) return;
     const now = e.target.closest('[data-sv-now]'); if (now) { if (active && active.d === d && active.t !== null) { const f = now.closest('form'); f[now.dataset.svNow].value = clock(active.t); } return; }
     if (e.target.closest('[data-sv-hide]')) { svEditHide(d); return; }
+    if (e.target.closest('[data-sv-drop]')) { svEditDrop(d); return; }
     if (e.target.closest('[data-sv-reset]')) { svEditReset(d); return; }
     if (e.target.closest('[data-sv-play]')) { playIn(d); return; }
     const src = e.target.closest('[data-sv-src]'); if (src) { if (+src.dataset.svSrc !== +d.dataset.i) svSwitch(d, +src.dataset.svSrc); return; }
