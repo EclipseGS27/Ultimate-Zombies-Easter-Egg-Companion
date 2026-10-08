@@ -1,28 +1,59 @@
-# Kronorium
+# Kronorium: Zombies Easter Egg Companion
 
-A zombies easter egg companion for Black Ops 1 to Black Ops 7: step-by-step main quest guides with a video for every quest step, progress tracking, and the story behind them. The tabs at the very top pick the storyline: the **Aether Story** (Black Ops to Black Ops 4) or the **Dark Aether Story** (Black Ops Cold War, Black Ops 6 and Black Ops 7). Each has its own maps and its own Lore page.
+**[Open the site →](https://eclipsegs27.github.io/Ultimate-Zombies-Easter-Egg-Companion/)**
 
-The whole site is one file. `index.html` and `Main Website` are the same page.
+A free companion for Call of Duty Zombies main quest easter eggs: every map in the Aether story (Black Ops 1 to Black Ops 4) and the Dark Aether story (Cold War, Vanguard, Black Ops 6 and Black Ops 7). Pick a map, follow the steps, tick them off as you go, and watch a short clip of any step you're stuck on instead of scrubbing through a 40 minute guide.
 
-## Videos
+No ads, no sign-up, nothing to install. It works on a phone, so you can keep it open next to the TV.
 
-Each step has a collapsible video that plays just that step: the stretch of a full walkthrough from where the step starts to where the next one begins. When it ends, one tap plays the next step. Scroll away while one plays and it docks in the corner. Step times come from each video's chapters, either the creator's own or chapters generated from the video's timed captions. YouTube only plays embedded videos on a page opened from a web address, so host the site to get them:
+[![Kronorium, showing the Origins guide](preview.jpg)](https://eclipsegs27.github.io/Ultimate-Zombies-Easter-Egg-Companion/)
 
-1. On GitHub, open **Settings → Pages**.
-2. Under **Build and deployment**, set **Source** to **Deploy from a branch**, pick the branch with `index.html` and the `/ (root)` folder, then **Save**.
-3. After a minute the site is live at `https://<your-username>.github.io/<repository-name>/`.
+## What's on it
 
-Opened as a saved file, the site still works, and its videos open on YouTube instead.
+- **Step-by-step checklists** for the main quest on every map, split into sections like power, gear, wonder weapons and the boss fight. Many maps also list their side easter eggs.
+- **Video clips for most steps.** Open a step and its clip starts right where that step begins in a full guide, and stops where the next one starts. When it ends, one tap plays the next step. The full guide sits at the top of each map.
+- **Progress tracking.** Your ticks are saved in your browser, so you can close the page and pick up where you left off.
+- **Search** within a map to jump to a step.
+- **Lore pages** for each storyline, with a timeline of the crews, worlds and events.
+- **A completion screen** themed to each map's finale when you finish its quest.
 
-## Changing a video or its times
+## Maps
 
-Open the site with `?edit` at the end of the address, for example `https://<your-username>.github.io/<repository-name>/?edit`. Editing stays on in that browser until you press **Stop editing**. Visitors never see any of it.
+The tabs at the top of the site switch between the two storylines.
 
-- Open any step's video. Under it, paste a different YouTube link, or change **Starts at** and **Ends at**. Type a time like `4:32`, or press **Now** while the video plays to use the moment it is at. A link with `?t=` in it sets the start for you.
-- **Save** makes it the step's first video. **Remove this video from the step** drops a video you don't want. **Undo my changes** puts the step back as it was.
-- Steps with no video show **Add a video**.
-- **Delete step** under a step, or **Delete section** under a section's title, removes it for visitors once published. You confirm before anything goes. Deleted items stay in your editor greyed out with a **Restore** button, before or after publishing. Progress counts leave them out.
-- The banner also shows **Use my image** and **Use my track**, which swap a map's art or music in your browser only. Visitors don't see these buttons, and everyone else always gets the built-in art and music.
+**Aether Story** (including Chaos)
 
-Changes show straight away, but only in your browser. To publish them for everyone, press **Download videos.json**. Then, on GitHub, choose **Add file → Upload files**, drop the file in, and press **Commit changes**. It replaces `videos.json` in the repository, and the site picks it up within a few minutes.
+| Game | Maps |
+| --- | --- |
+| Black Ops | Ascension, Call of the Dead, Shangri-La, Moon |
+| Black Ops II | TranZit, Die Rise, Mob of the Dead, Buried, Origins |
+| Black Ops III | Shadows of Evil, The Giant, Der Eisendrache, Zetsubou No Shima, Gorod Krovi, Revelations |
+| Black Ops 4 | Voyage of Despair, IX, Blood of the Dead, Classified, Dead of the Night, Ancient Evil, Alpha Omega, Tag der Toten |
 
+**Dark Aether Story**
+
+| Game | Maps |
+| --- | --- |
+| Black Ops Cold War | Die Maschine, Firebase Z, Outbreak, Mauer der Toten, Forsaken |
+| Vanguard | Der Anfang, Terra Maledicta, Shi No Numa, The Archon |
+| Black Ops 6 | Liberty Falls, Terminus, Citadelle des Morts, The Tomb, Shattered Veil, Reckoning |
+| Black Ops 7 | Ashes of the Damned, Astra Malorum, Paradox Junction, Totenreich, Kowakujō, Rex Infernus |
+
+## Still in progress
+
+- Most steps have a clip, but some don't yet. Those steps still have written instructions.
+- The Giant has no guide video yet.
+
+## Credits
+
+The videos are embedded straight from YouTube, so every view goes to the people who made them. Most come from [MrRoflWaffles](https://www.youtube.com/@MrRoflWaffles), with NoahJ456 and other creators filling in where he has no guide. Each map lists the written guides and wiki pages its steps were checked against.
+
+Kronorium is a fan project and isn't affiliated with Activision or Treyarch.
+
+## Found a mistake?
+
+With this many maps, something is bound to be off. If a step is wrong or missing, or a clip starts in the wrong place, [open an issue](https://github.com/EclipseGS27/Ultimate-Zombies-Easter-Egg-Companion/issues) with the map and step and it'll get fixed.
+
+---
+
+Maintainer notes (hosting, the video editor and publishing changes) are in [docs/EDITING.md](docs/EDITING.md).
