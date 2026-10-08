@@ -1,4 +1,109 @@
 {
- "about": "Kronorium video changes: each key is a step (map-section-number) or a full walkthrough (walk-map-number). v = YouTube id, s and e = start and end in seconds, t = title, hide = video ids removed from the step. Make changes with the site's editor (open the site with ?edit) and upload the file it downloads here.",
- "steps": {}
+ "about": "Kronorium changes. steps: each key is a step (map-section-number) or a full walkthrough (walk-map-number); v = YouTube id, s and e = start and end in seconds, t = title, hide = video ids removed from the step, none = the step shows no video, add = more videos shown after the step's own. text: each key is a map, a section (map-section) or a step (map-section-number), holding only the wording that was changed; gone = that step or section is deleted. layout: where a step's video sits (right, left, above or below its words); * is every step.",
+ "steps": {
+  "asc-free-1": {
+   "hide": [
+    "P6RzrxQ6yNg"
+   ]
+  },
+  "asc-free-2": {
+   "hide": [
+    "P6RzrxQ6yNg"
+   ]
+  },
+  "asc-nodes-1": {
+   "hide": [
+    "P6RzrxQ6yNg"
+   ]
+  },
+  "asc-setup-1": {
+   "hide": [
+    "P6RzrxQ6yNg"
+   ]
+  },
+  "asc-setup-2": {
+   "hide": [
+    "P6RzrxQ6yNg"
+   ]
+  },
+  "cotd-door-1": {
+   "hide": [
+    "qKz6lDbvwF8"
+   ]
+  },
+  "cotd-door-2": {
+   "hide": [
+    "qKz6lDbvwF8"
+   ]
+  },
+  "cotd-door-7": {
+   "hide": [
+    "qKz6lDbvwF8"
+   ]
+  },
+  "cotd-rod-1": {
+   "v": "qKz6lDbvwF8",
+   "s": 640,
+   "e": 675
+  },
+  "cotd-rod-2": {
+   "v": "qKz6lDbvwF8",
+   "s": 675,
+   "e": 776
+  },
+  "cotd-rod-3": {
+   "hide": [
+    "qKz6lDbvwF8"
+   ]
+  },
+  "cotd-rod-4": {
+   "hide": [
+    "qKz6lDbvwF8"
+   ]
+  },
+  "cotd-rod-5": {
+   "hide": [
+    "qKz6lDbvwF8"
+   ]
+  },
+  "sl-setup-0": {
+   "hide": [
+    "sYekkHuSAV8"
+   ]
+  }
+ },
+ "text": {
+  "asc-setup-2": {
+   "t": "Launch the rocket and open Pack a Punch",
+   "d": "Return to the power room and press the red button. The rocket on the launch pad lifts off. The door below Speed Cola and Mule Kick now opens. Pack-a-Punch is inside."
+  },
+  "asc-setup-3": {
+   "gone": true
+  },
+  "cotd-door-4": {
+   "d": "A bottle frozen in ice hangs on a ledge above a walkway: on a railing, at the bottom of a staircase or at the bottom of a drop. It only spawns outside, on top of the PhD Flopper room, or on the power-switch half of the ship. One player stands on the walkway underneath, a second melees the ice from above, and the first catches the bottle as it falls."
+  },
+  "cotd-door-5": {
+   "d": "Each floor of the lighthouse has a coloured dial: yellow, orange, blue, purple from top to bottom. Turn them so they read 2, 7, 4, 6 from the top floor to the bottom."
+  },
+  "cotd-door-6": {
+   "d": "Interact with all four radios in this order, within a few seconds of each other. A light in the sky flashes Morse code when it works."
+  },
+  "cotd-setup": {
+   "intro": ""
+  },
+  "cotd-setup-1": {
+   "gone": true
+  },
+  "cotd-setup-3": {
+   "gone": true
+  },
+  "cotd-side": {
+   "gone": true
+  },
+  "cotd-side-1": {
+   "gone": true
+  }
+ },
+ "layout": {}
 }
