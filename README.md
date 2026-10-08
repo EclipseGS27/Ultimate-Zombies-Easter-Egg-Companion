@@ -2,7 +2,7 @@
 
 **[Open the site →](https://eclipsegs27.github.io/Ultimate-Zombies-Easter-Egg-Companion/)**
 
-A free companion for Call of Duty Zombies main quest easter eggs, from Black Ops 1 to Black Ops 7. Pick a map, follow the steps, tick them off as you go, and watch a short clip of any step you're stuck on instead of scrubbing through a 40 minute guide.
+A free companion for Call of Duty Zombies main quest easter eggs: every map in the Aether story (Black Ops 1 to Black Ops 4) and the Dark Aether story (Cold War, Vanguard, Black Ops 6 and Black Ops 7). Pick a map, follow the steps, tick them off as you go, and watch a short clip of any step you're stuck on instead of scrubbing through a 40 minute guide.
 
 No ads, no sign-up, nothing to install. It works on a phone, so you can keep it open next to the TV.
 
@@ -11,7 +11,7 @@ No ads, no sign-up, nothing to install. It works on a phone, so you can keep it 
 ## What's on it
 
 - **Step-by-step checklists** for the main quest on every map, split into sections like power, gear, wonder weapons and the boss fight. Many maps also list their side easter eggs.
-- **A video for each step.** Open a step and its clip starts right where that step begins in a full guide, and stops where the next one starts. When it ends, one tap plays the next step. The full guide sits at the top of each map.
+- **Video clips for most steps.** Open a step and its clip starts right where that step begins in a full guide, and stops where the next one starts. When it ends, one tap plays the next step. The full guide sits at the top of each map.
 - **Progress tracking.** Your ticks are saved in your browser, so you can close the page and pick up where you left off.
 - **Search** within a map to jump to a step.
 - **Lore pages** for each storyline, with a timeline of the crews, worlds and events.
