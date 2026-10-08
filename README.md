@@ -1,6 +1,6 @@
 # Kronorium
 
-A zombies easter egg companion for Black Ops 1 to Black Ops 4: step-by-step main quest guides with a video for every quest step, progress tracking, and the story of the Aether.
+A zombies easter egg companion for Black Ops 1 to Black Ops 7: step-by-step main quest guides with a video for every quest step, progress tracking, and the story behind them. The tabs at the very top pick the storyline: the **Aether Story** (Black Ops to Black Ops 4) or the **Dark Aether Story** (Black Ops Cold War, Black Ops 6 and Black Ops 7). Each has its own maps and its own Lore page.
 
 The whole site is one file. `index.html` and `Main Website` are the same page.
 
