@@ -6894,5 +6894,22 @@ const Music = (() => {
 })();
 
 </script>
+<script>
+/* visitor counter: GoatCounter, cookie-free and invisible on the page. Only the owner sees the numbers,
+   on their GoatCounter dashboard. Visits made with ?edit on (the owner's own browser) are not counted. */
+(function () {
+  const GOATCOUNTER_CODE = ''; /* the site code from goatcounter.com, e.g. 'zombies-ee' */
+  if (!GOATCOUNTER_CODE) return;
+  try {
+    const q = new URLSearchParams(location.search);
+    if ((q.has('edit') && q.get('edit') !== 'off') || localStorage.getItem('kronorium.edit') === '1') return;
+  } catch (e) { /* storage unavailable: count the visit */ }
+  const s = document.createElement('script');
+  s.async = true;
+  s.src = 'https://gc.zgo.at/count.js';
+  s.dataset.goatcounter = 'https://' + GOATCOUNTER_CODE + '.goatcounter.com/count';
+  document.body.appendChild(s);
+})();
+</script>
 </body>
 </html>
