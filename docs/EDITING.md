@@ -28,7 +28,7 @@ Changes show straight away, but only in your browser. To publish them for everyo
 
 ## Puzzle screenshots
 
-Black Ops 7 steps with a cipher or puzzle show screenshots under the step text. A tap opens one full screen. The images live in `img/bo7/`. Most are frames from the step's own guide video. The two pigpen sheets for Ashes of the Damned (`aotd-yuri-pigpen.svg` and `aotd-monitor-pigpen.svg`) are drawn for this site.
+Black Ops 7 steps with a cipher or puzzle, or with an item that can spawn in several places, show screenshots under the step text. Three or more pictures appear as a grid of thumbnails. A tap opens one full screen, where the arrows, the arrow keys or a swipe move between that step's pictures. The images live in `img/bo7/`. Most are frames from the step's own guide video. The two pigpen sheets for Ashes of the Damned (`aotd-yuri-pigpen.svg` and `aotd-monitor-pigpen.svg`) are drawn for this site.
 
 To swap a picture, upload a new file under the same name in `img/bo7/`. To add, move or re-caption one, edit the `const SHOTS = {...}` line in `index.html`. It maps a step id to a list of pictures:
 
