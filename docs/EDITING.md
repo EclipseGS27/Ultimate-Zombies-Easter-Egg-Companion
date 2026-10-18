@@ -2,7 +2,7 @@
 
 This page is for the site's owner. Visitors don't need any of it, and nothing here changes the public site unless it is committed to this repository.
 
-The whole site is one file. `index.html` and `Main Website` are the same page.
+The whole site is one file, plus the puzzle screenshots in `img/`. `index.html` and `Main Website` are the same page.
 
 ## How the step videos work
 
@@ -25,4 +25,16 @@ Open the site with `?edit` at the end of the address, for example `https://<your
 - The banner also shows **Use my image** and **Use my track**, which swap a map's art or music in your browser only. Visitors don't see these buttons, and everyone else always gets the built-in art and music.
 
 Changes show straight away, but only in your browser. To publish them for everyone, press **Download videos.json**. Then, on GitHub, choose **Add file → Upload files**, drop the file in, and press **Commit changes**. It replaces `videos.json` in the repository, and the site picks it up within a few minutes.
+
+## Puzzle screenshots
+
+Black Ops 7 steps with a cipher or puzzle show screenshots under the step text. A tap opens one full screen. The images live in `img/bo7/`. Most are frames from the step's own guide video. The two pigpen sheets for Ashes of the Damned (`aotd-yuri-pigpen.svg` and `aotd-monitor-pigpen.svg`) are drawn for this site.
+
+To swap a picture, upload a new file under the same name in `img/bo7/`. To add, move or re-caption one, edit the `const SHOTS = {...}` line in `index.html`. It maps a step id to a list of pictures:
+
+```js
+'aotd-serum-2': [['img/bo7/aotd-yuri-lab.jpg', 'Caption shown under the picture', 'XGc-_4sT9dE', 905]]
+```
+
+The last two values are the YouTube video and the second the frame comes from. They make the "From … at 15:05" link under the picture. Use `''` and `0` for a picture that isn't from a video. Step ids are the map id, the section id and the step's number from 0, so `aotd-serum-2` is the third step of the Serum section in Ashes of the Damned. Copy any change to `Main Website` too.
 
